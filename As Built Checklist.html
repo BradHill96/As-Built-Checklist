@@ -1,0 +1,887 @@
+c<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>iPhone Field Checklist</title>
+  <style>
+    :root {
+      --bg: #f4f5f7;
+      --card: rgba(255,255,255,0.92);
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --primary: #111827;
+      --success: #0f9f62;
+      --warning: #d97706;
+      --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(180deg, #f8fafc 0%, var(--bg) 100%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    }
+
+    body {
+      padding: max(14px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom));
+    }
+
+    .app {
+      max-width: 760px;
+      margin: 0 auto;
+      display: grid;
+      gap: 14px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      border-radius: 28px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero h1 {
+      margin: 0 0 6px;
+      font-size: 1.75rem;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .hero p {
+      margin: 0;
+      color: rgba(255,255,255,0.78);
+      font-size: 0.95rem;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      color: #dbeafe;
+      font-size: 0.78rem;
+      padding: 6px 10px;
+      margin-bottom: 10px;
+    }
+
+    .summary {
+      margin-top: 14px;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(12px);
+      border-radius: 22px;
+      padding: 14px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.16);
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #38bdf8 0%, #60a5fa 100%);
+      width: 0%;
+      transition: width 0.2s ease;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 10px;
+      font-size: 0.82rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .title-row {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.1rem;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+    }
+
+    .desc {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.35;
+    }
+
+    .badge {
+      background: #111827;
+      color: white;
+      border-radius: 999px;
+      padding: 6px 10px;
+      white-space: nowrap;
+      font-size: 0.78rem;
+      align-self: start;
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+
+    label.field-label {
+      display: block;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"], input[type="date"], textarea {
+      width: 100%;
+      appearance: none;
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+    }
+
+    textarea { min-height: 120px; resize: vertical; }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      appearance: none;
+      border: none;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--primary);
+      color: white;
+      min-height: 46px;
+    }
+
+    button.secondary {
+      background: #f3f4f6;
+      color: #111827;
+      border: 1px solid var(--border);
+    }
+
+    button.ghost {
+      background: #fff7ed;
+      color: #b45309;
+      border: 1px solid #fed7aa;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.35;
+    }
+
+    .section-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .check-row input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 auto;
+      accent-color: #111827;
+    }
+
+    .check-row .meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .check-row .name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .check-row .sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .inline-tools {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: #eef2ff;
+      color: #3730a3;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      padding: 4px 8px;
+    }
+
+    .mini-input {
+      max-width: 140px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      background: white;
+    }
+
+    .warning-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      border-radius: 16px;
+      padding: 12px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+      padding-bottom: 8px;
+    }
+
+    @media (max-width: 640px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 1.55rem; }
+      button { width: 100%; }
+      .actions { display: grid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="hero">
+      <div class="chip">iPhone Field Checklist</div>
+      <h1>Fast on-site checklist for As Built work</h1>
+      <p>Built for iPhone Safari / Home Screen. Auto-saves on device, loads Wi‑Fi and Data labels separately, and exports clean CSV files.</p>
+
+      <div class="summary">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.9rem;color:#e5e7eb;">
+          <span>Completion</span>
+          <strong id="completionValue">0%</strong>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="completionBar"></div></div>
+        <div class="stats">
+          <div class="stat" id="statWifi">Wi‑Fi: 0</div>
+          <div class="stat" id="statData">Data: 0</div>
+          <div class="stat" id="statPhotos">Photos: 0/0</div>
+          <div class="stat" id="statChecked">Checked: 0</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="title-row">
+        <div>
+          <h2>Home Screen install</h2>
+          <div class="desc">Open in Safari on iPhone, then tap Share → Add to Home Screen for the best experience.</div>
+        </div>
+        <div class="badge">Works offline</div>
+      </div>
+      <div class="hint">All checklist data auto-saves in your browser on this device.</div>
+    </section>
+
+    <section class="card">
+      <div class="title-row">
+        <div>
+          <h2>Site information</h2>
+          <div class="desc">Set the basic job details first so exports are easier to identify later.</div>
+        </div>
+      </div>
+      <div class="grid grid-2">
+        <div>
+          <label class="field-label" for="projectName">Project Name</label>
+          <input id="projectName" type="text" placeholder="e.g. RSL Austral" />
+        </div>
+        <div>
+          <label class="field-label" for="siteName">Site Name</label>
+          <input id="siteName" type="text" placeholder="e.g. John Edmundson Gardens" />
+        </div>
+        <div>
+          <label class="field-label" for="siteCode">Site Code</label>
+          <input id="siteCode" type="text" placeholder="e.g. 08424" />
+        </div>
+        <div>
+          <label class="field-label" for="siteDate">Date</label>
+          <input id="siteDate" type="date" />
+        </div>
+        <div>
+          <label class="field-label" for="technician">Technician</label>
+          <input id="technician" type="text" placeholder="Your name" />
+        </div>
+        <div>
+          <label class="field-label" for="siteNotes">General Notes</label>
+          <textarea id="siteNotes" placeholder="Access notes, handover reminders, anything important for this site."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="title-row">
+        <div>
+          <h2>Photos</h2>
+          <div class="desc">Quick tap checklist for mandatory photos before leaving site.</div>
+        </div>
+        <div class="badge" id="photoBadge">0/7</div>
+      </div>
+      <div id="photosList" class="section-list"></div>
+    </section>
+
+    <section class="card">
+      <div class="title-row">
+        <div>
+          <h2>Load Wi‑Fi checklist</h2>
+          <div class="desc">Paste one WAP / AP label per line. These entries can be cleared independently later.</div>
+        </div>
+        <div class="badge" id="wifiCountBadge">0 APs</div>
+      </div>
+      <label class="field-label" for="wifiInput">Paste Wi‑Fi labels</label>
+      <textarea id="wifiInput" placeholder="WAP 1&#10;WAP 2&#10;WAP 3"></textarea>
+      <div class="actions">
+        <button id="loadWifiBtn" type="button">Load Wi‑Fi</button>
+        <button id="clearWifiBtn" class="secondary" type="button">Clear Wi‑Fi preload only</button>
+        <button id="exportWifiBtn" class="secondary" type="button">Export Wi‑Fi CSV</button>
+      </div>
+      <div class="hint">Wi‑Fi preload rows are tagged so you can remove just those without wiping manually added items.</div>
+      <div id="wifiList" class="section-list" style="margin-top:12px;"></div>
+    </section>
+
+    <section class="card">
+      <div class="title-row">
+        <div>
+          <h2>Load Data checklist</h2>
+          <div class="desc">Paste one outlet label per line. These entries can also be cleared independently.</div>
+        </div>
+        <div class="badge" id="dataCountBadge">0 outlets</div>
+      </div>
+      <label class="field-label" for="dataInput">Paste Data labels</label>
+      <textarea id="dataInput" placeholder="1A&#10;1B&#10;2A"></textarea>
+      <div class="actions">
+        <button id="loadDataBtn" type="button">Load Data</button>
+        <button id="clearDataBtn" class="secondary" type="button">Clear Data preload only</button>
+        <button id="exportDataBtn" class="secondary" type="button">Export Data CSV</button>
+      </div>
+      <div class="hint">Use this for quick field loading only — there is no BOM or design interpretation.</div>
+      <div id="dataList" class="section-list" style="margin-top:12px;"></div>
+    </section>
+
+    <section class="card">
+      <div class="title-row">
+        <div>
+          <h2>Pre-Leave</h2>
+          <div class="desc">Final gate before leaving site.</div>
+        </div>
+        <div class="badge" id="preleaveBadge">0/6</div>
+      </div>
+      <div id="preleaveList" class="section-list"></div>
+      <div class="warning-box" id="openItemsBox" style="margin-top:12px; display:none;"></div>
+    </section>
+
+    <section class="card">
+      <div class="title-row">
+        <div>
+          <h2>Export</h2>
+          <div class="desc">Download the full checklist or just the preloaded sections.</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="exportAllBtn" type="button">Export full CSV</button>
+        <button id="exportPreloadBtn" class="secondary" type="button">Export preload only CSV</button>
+        <button id="clearPreloadedBtn" class="ghost" type="button">Clear all preloaded only</button>
+        <button id="resetAllBtn" class="ghost" type="button">Reset everything</button>
+      </div>
+    </section>
+
+    <div class="footer-note">Built for quick iPhone use on site.</div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "iphone-field-checklist-v2";
+    const PRELOAD_WIFI_NOTE = "Manual entry (Wi‑Fi preload)";
+    const PRELOAD_DATA_NOTE = "Manual entry (Data preload)";
+
+    const photoItems = [
+      "Cabinet photos taken",
+      "WAP photos taken",
+      "CCTV photos taken (if applicable)",
+      "Comms room / cupboard overview taken",
+      "Patch panels / labels photographed",
+      "Switches photographed",
+      "Photo naming checked",
+    ];
+
+    const preleaveItems = [
+      "All APs entered",
+      "All data entered",
+      "Cabinet to comms room mapping complete",
+      "Labels verified",
+      "Testing complete",
+      "Nothing missing before leaving site",
+    ];
+
+    const defaultState = {
+      siteInfo: {
+        projectName: "",
+        siteName: "",
+        siteCode: "",
+        siteDate: new Date().toISOString().slice(0, 10),
+        technician: "",
+        siteNotes: "",
+      },
+      photos: photoItems.map((label) => ({ label, checked: false })),
+      preleave: preleaveItems.map((label) => ({ label, checked: false })),
+      wifiEntries: [],
+      dataEntries: [],
+      wifiInput: "",
+      dataInput: "",
+    };
+
+    let state = loadState();
+
+    function deepClone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return deepClone(defaultState);
+        return { ...deepClone(defaultState), ...JSON.parse(saved) };
+      } catch {
+        return deepClone(defaultState);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function makeWifiEntry(label, source = PRELOAD_WIFI_NOTE) {
+      return {
+        id: crypto.randomUUID(),
+        label,
+        checked: false,
+        source,
+        location: "",
+        origin: "",
+      };
+    }
+
+    function makeDataEntry(label, source = PRELOAD_DATA_NOTE) {
+      return {
+        id: crypto.randomUUID(),
+        label,
+        checked: false,
+        source,
+        location: "",
+        origin: "",
+      };
+    }
+
+    function normalizeLine(line) {
+      return String(line || "").replace(/\s+/g, " ").trim();
+    }
+
+    function linesFromText(text) {
+      return String(text || "")
+        .split(/\r?\n/)
+        .map(normalizeLine)
+        .filter(Boolean);
+    }
+
+    function toCsv(rows) {
+      if (!rows.length) return "";
+      const escape = (value) => `"${String(value ?? "").replace(/"/g, '""')}"`;
+      const headers = Object.keys(rows[0]);
+      const lines = [headers.map(escape).join(",")];
+      rows.forEach((row) => lines.push(headers.map((key) => escape(row[key])).join(",")));
+      return lines.join("\n");
+    }
+
+    function downloadFile(filename, content, mime = "text/csv;charset=utf-8;") {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function bindSiteInfo() {
+      const ids = ["projectName", "siteName", "siteCode", "siteDate", "technician", "siteNotes"];
+      ids.forEach((id) => {
+        const el = document.getElementById(id);
+        el.value = state.siteInfo[id] || "";
+        el.oninput = () => {
+          state.siteInfo[id] = el.value;
+          saveState();
+          renderStats();
+        };
+      });
+
+      document.getElementById("wifiInput").value = state.wifiInput || "";
+      document.getElementById("dataInput").value = state.dataInput || "";
+
+      document.getElementById("wifiInput").oninput = (e) => {
+        state.wifiInput = e.target.value;
+        saveState();
+      };
+
+      document.getElementById("dataInput").oninput = (e) => {
+        state.dataInput = e.target.value;
+        saveState();
+      };
+    }
+
+    function renderChecklist(containerId, items, onToggle) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+      items.forEach((item, index) => {
+        const row = document.createElement("label");
+        row.className = "check-row";
+        row.innerHTML = `
+          <input type="checkbox" ${item.checked ? "checked" : ""} />
+          <div class="meta">
+            <div class="name">${item.label}</div>
+          </div>
+        `;
+        row.querySelector("input").onchange = (e) => onToggle(index, e.target.checked);
+        container.appendChild(row);
+      });
+    }
+
+    function renderDynamicList(containerId, items, type) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+
+      items.forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "check-row";
+        row.innerHTML = `
+          <input type="checkbox" ${item.checked ? "checked" : ""} />
+          <div class="meta">
+            <div class="name"></div>
+            <div class="inline-tools">
+              ${item.source ? `<span class="pill">${item.source}</span>` : ""}
+              <input type="text" class="mini-input location" placeholder="Location" value="${(item.location || "").replace(/"/g, "&quot;")}" />
+              <input type="text" class="mini-input origin" placeholder="Origin" value="${(item.origin || "").replace(/"/g, "&quot;")}" />
+              <button type="button" class="secondary remove" style="width:auto; min-height:auto; padding:8px 10px; border-radius:12px; font-size:13px;">Remove</button>
+            </div>
+          </div>
+        `;
+
+        const checkbox = row.querySelector('input[type="checkbox"]');
+        const name = row.querySelector(".name");
+        const location = row.querySelector(".location");
+        const origin = row.querySelector(".origin");
+        const removeBtn = row.querySelector(".remove");
+        name.textContent = item.label;
+
+        checkbox.onchange = (e) => {
+          item.checked = e.target.checked;
+          saveState();
+          renderStats();
+        };
+
+        location.oninput = (e) => {
+          item.location = e.target.value;
+          saveState();
+          renderStats();
+        };
+
+        origin.oninput = (e) => {
+          item.origin = e.target.value;
+          saveState();
+          renderStats();
+        };
+
+        removeBtn.onclick = () => {
+          if (type === "wifi") state.wifiEntries = state.wifiEntries.filter((x) => x.id !== item.id);
+          if (type === "data") state.dataEntries = state.dataEntries.filter((x) => x.id !== item.id);
+          saveState();
+          render();
+        };
+
+        container.appendChild(row);
+      });
+    }
+
+    function renderStats() {
+      const photoChecked = state.photos.filter((x) => x.checked).length;
+      const preleaveChecked = state.preleave.filter((x) => x.checked).length;
+      const wifiChecked = state.wifiEntries.filter((x) => x.checked).length;
+      const dataChecked = state.dataEntries.filter((x) => x.checked).length;
+
+      const totalChecks = state.photos.length + state.preleave.length + state.wifiEntries.length + state.dataEntries.length;
+      const doneChecks = photoChecked + preleaveChecked + wifiChecked + dataChecked;
+      const percent = totalChecks === 0 ? 0 : Math.round((doneChecks / totalChecks) * 100);
+
+      document.getElementById("completionValue").textContent = `${percent}%`;
+      document.getElementById("completionBar").style.width = `${percent}%`;
+      document.getElementById("statWifi").textContent = `Wi‑Fi: ${state.wifiEntries.length}`;
+      document.getElementById("statData").textContent = `Data: ${state.dataEntries.length}`;
+      document.getElementById("statPhotos").textContent = `Photos: ${photoChecked}/${state.photos.length}`;
+      document.getElementById("statChecked").textContent = `Checked: ${doneChecks}`;
+      document.getElementById("photoBadge").textContent = `${photoChecked}/${state.photos.length}`;
+      document.getElementById("preleaveBadge").textContent = `${preleaveChecked}/${state.preleave.length}`;
+      document.getElementById("wifiCountBadge").textContent = `${state.wifiEntries.length} APs`;
+      document.getElementById("dataCountBadge").textContent = `${state.dataEntries.length} outlets`;
+
+      const openItems = [];
+      state.wifiEntries.forEach((item, i) => {
+        const missing = [];
+        if (!item.location) missing.push("Location");
+        if (!item.origin) missing.push("Origin");
+        if (missing.length) openItems.push(`Wi‑Fi ${i + 1} (${item.label}): ${missing.join(", ")}`);
+      });
+
+      state.dataEntries.forEach((item, i) => {
+        const missing = [];
+        if (!item.location) missing.push("Location");
+        if (!item.origin) missing.push("Origin");
+        if (missing.length) openItems.push(`Data ${i + 1} (${item.label}): ${missing.join(", ")}`);
+      });
+
+      const box = document.getElementById("openItemsBox");
+      if (openItems.length) {
+        box.style.display = "block";
+        box.innerHTML = `<strong>Open items</strong><br>${openItems.join("<br>")}`;
+      } else {
+        box.style.display = "none";
+        box.innerHTML = "";
+      }
+    }
+
+    function render() {
+      bindSiteInfo();
+      renderChecklist("photosList", state.photos, (index, checked) => {
+        state.photos[index].checked = checked;
+        saveState();
+        renderStats();
+      });
+
+      renderChecklist("preleaveList", state.preleave, (index, checked) => {
+        state.preleave[index].checked = checked;
+        saveState();
+        renderStats();
+      });
+
+      renderDynamicList("wifiList", state.wifiEntries, "wifi");
+      renderDynamicList("dataList", state.dataEntries, "data");
+      renderStats();
+    }
+
+    function loadWifi() {
+      const items = linesFromText(document.getElementById("wifiInput").value).map((line) => makeWifiEntry(line));
+      const manualRows = state.wifiEntries.filter((item) => item.source !== PRELOAD_WIFI_NOTE);
+      state.wifiEntries = [...manualRows, ...items];
+      state.wifiInput = document.getElementById("wifiInput").value;
+      saveState();
+      render();
+    }
+
+    function loadData() {
+      const items = linesFromText(document.getElementById("dataInput").value).map((line) => makeDataEntry(line));
+      const manualRows = state.dataEntries.filter((item) => item.source !== PRELOAD_DATA_NOTE);
+      state.dataEntries = [...manualRows, ...items];
+      state.dataInput = document.getElementById("dataInput").value;
+      saveState();
+      render();
+    }
+
+    function clearWifiPreloadedOnly() {
+      state.wifiEntries = state.wifiEntries.filter((item) => item.source !== PRELOAD_WIFI_NOTE);
+      state.wifiInput = "";
+      saveState();
+      render();
+    }
+
+    function clearDataPreloadedOnly() {
+      state.dataEntries = state.dataEntries.filter((item) => item.source !== PRELOAD_DATA_NOTE);
+      state.dataInput = "";
+      saveState();
+      render();
+    }
+
+    function clearAllPreloadedOnly() {
+      clearWifiPreloadedOnly();
+      clearDataPreloadedOnly();
+    }
+
+    function exportWifiOnly() {
+      const rows = state.wifiEntries.map((item, index) => ({
+        Row: index + 1,
+        Label: item.label,
+        Checked: item.checked ? "Yes" : "No",
+        Location: item.location || "",
+        Origin: item.origin || "",
+        Source: item.source || "",
+      }));
+      downloadFile(`${state.siteInfo.siteName || "site"}-wifi.csv`, toCsv(rows));
+    }
+
+    function exportDataOnly() {
+      const rows = state.dataEntries.map((item, index) => ({
+        Row: index + 1,
+        Label: item.label,
+        Checked: item.checked ? "Yes" : "No",
+        Location: item.location || "",
+        Origin: item.origin || "",
+        Source: item.source || "",
+      }));
+      downloadFile(`${state.siteInfo.siteName || "site"}-data.csv`, toCsv(rows));
+    }
+
+    function exportPreloadOnly() {
+      const wifiRows = state.wifiEntries
+        .filter((item) => item.source === PRELOAD_WIFI_NOTE)
+        .map((item, index) => ({
+          Row: index + 1,
+          Label: item.label,
+          Checked: item.checked ? "Yes" : "No",
+          Location: item.location || "",
+          Origin: item.origin || "",
+        }));
+
+      const dataRows = state.dataEntries
+        .filter((item) => item.source === PRELOAD_DATA_NOTE)
+        .map((item, index) => ({
+          Row: index + 1,
+          Label: item.label,
+          Checked: item.checked ? "Yes" : "No",
+          Location: item.location || "",
+          Origin: item.origin || "",
+        }));
+
+      const combined = ["# WIFI", toCsv(wifiRows), "", "# DATA", toCsv(dataRows)].join("\n");
+      downloadFile(`${state.siteInfo.siteName || "site"}-preload-only.csv`, combined);
+    }
+
+    function exportFull() {
+      const siteRows = Object.entries(state.siteInfo).map(([Field, Value]) => ({ Field, Value }));
+      const photoRows = state.photos.map((item, index) => ({ Row: index + 1, Item: item.label, Checked: item.checked ? "Yes" : "No" }));
+      const wifiRows = state.wifiEntries.map((item, index) => ({
+        Row: index + 1,
+        Label: item.label,
+        Checked: item.checked ? "Yes" : "No",
+        Location: item.location || "",
+        Origin: item.origin || "",
+        Source: item.source || "",
+      }));
+      const dataRows = state.dataEntries.map((item, index) => ({
+        Row: index + 1,
+        Label: item.label,
+        Checked: item.checked ? "Yes" : "No",
+        Location: item.location || "",
+        Origin: item.origin || "",
+        Source: item.source || "",
+      }));
+      const preleaveRows = state.preleave.map((item, index) => ({ Row: index + 1, Item: item.label, Checked: item.checked ? "Yes" : "No" }));
+
+      const combined = [
+        "# SITE INFO",
+        toCsv(siteRows),
+        "",
+        "# PHOTOS",
+        toCsv(photoRows),
+        "",
+        "# WIFI",
+        toCsv(wifiRows),
+        "",
+        "# DATA",
+        toCsv(dataRows),
+        "",
+        "# PRE-LEAVE",
+        toCsv(preleaveRows),
+      ].join("\n");
+
+      downloadFile(`${state.siteInfo.siteName || "site"}-field-checklist.csv`, combined);
+    }
+
+    function resetEverything() {
+      if (!confirm("Clear everything on this device for this checklist?")) return;
+      state = deepClone(defaultState);
+      saveState();
+      render();
+    }
+
+    document.getElementById("loadWifiBtn").addEventListener("click", loadWifi);
+    document.getElementById("loadDataBtn").addEventListener("click", loadData);
+    document.getElementById("clearWifiBtn").addEventListener("click", clearWifiPreloadedOnly);
+    document.getElementById("clearDataBtn").addEventListener("click", clearDataPreloadedOnly);
+    document.getElementById("clearPreloadedBtn").addEventListener("click", clearAllPreloadedOnly);
+    document.getElementById("exportWifiBtn").addEventListener("click", exportWifiOnly);
+    document.getElementById("exportDataBtn").addEventListener("click", exportDataOnly);
+    document.getElementById("exportPreloadBtn").addEventListener("click", exportPreloadOnly);
+    document.getElementById("exportAllBtn").addEventListener("click", exportFull);
+    document.getElementById("resetAllBtn").addEventListener("click", resetEverything);
+
+    render();
+  </script>
+</body>
+</html>
+checklist.html
+Displaying checklist.html.
